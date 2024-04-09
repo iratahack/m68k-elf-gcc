@@ -1,0 +1,33 @@
+name: "m68k-elf-gcc builder"
+
+concurrency:
+  group: ${{ github.ref }}-m68k-elf-gcc
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch: # Allows for manual triggering.
+  push: # Trigger when pushed to master.
+    branches:
+      - 'develop'
+
+env:
+  PLATFORMS: linux/amd64
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Install Packages
+        run: |
+          sudo apt install mingw-w64 build-essential
+
+      - name: Building
+        run: |
+          ./build_gcc.sh
+
