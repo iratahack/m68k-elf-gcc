@@ -111,5 +111,5 @@ rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
 rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
 
 cd "$INSTALLDIR"
-tar cfz mingw32.tgz ./$HOST
-tar cfz ubuntu.tgz ./$BUILD
+tar cfz ${BASEDIR}/mingw32.tgz ./$HOST
+tar cfz ${BASEDIR}/ubuntu.tgz ./$BUILD
