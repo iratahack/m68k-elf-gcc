@@ -108,3 +108,8 @@ build_binutils
 build_gcc
 
 rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
+rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
+
+cd "$INSTALLDIR"
+tar cfz mingw32.tgz ./$HOST
+tar cfz ubuntu.tgz ./$BUILD
