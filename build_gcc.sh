@@ -140,9 +140,12 @@ build_gcc
 rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
 rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
 
-echo "MINGW_FILE=$HOST" >> "$GITHUB_ENV"
-echo "UBUNTU_FILE=$BUILD" >> "$GITHUB_ENV"
-
 cd "$INSTALLDIR"
-tar cfz ${BASEDIR}/$HOST.tgz ./$HOST
+zip -r ${BASEDIR}/$HOST.zip ./$HOST
 tar cfz ${BASEDIR}/$BUILD.tgz ./$BUILD
+
+# For github actions
+if [ "$GITHUB_ENV" != "" ]; then
+	echo "MINGW_FILE=$HOST" >> "$GITHUB_ENV"
+	echo "UBUNTU_FILE=$BUILD" >> "$GITHUB_ENV"
+fi
