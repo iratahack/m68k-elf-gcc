@@ -11,7 +11,7 @@ The build scripts in this repository are:
   * The output of this script are two tar-balls. One containing GCC for Ubuntu and one for Windows.
 * build_gcc_mingw.sh
   * Used to build GCC natively in an msys2 (mingw32) environment on Windows.
-  * The script will copy the needed DLL's into the GCC binry directory.
+  * The script will copy the needed DLL's into the GCC `bin` directory.
 
 ## Github Actions
 
