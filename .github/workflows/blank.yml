@@ -1,0 +1,55 @@
+name: "m68k-elf-gcc mingw32 builder"
+
+concurrency:
+  group: ${{ github.ref }}-m68k-elf-gcc_mingw32
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch: # Allows for manual triggering.
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    defaults:
+      run:
+        shell: msys2 {0}
+    
+    steps:
+      - name: Setup msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          install: gcc mingw-w64-i686-toolchain development make autotools texinfo
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Building
+        run: |
+          ./build_gcc_mingw.sh
+          ls -al
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "${{ github.ref_name }}_latest"
+          release_name: "Automated release from ${{ github.ref_name }} branch"
+          draft: true
+          prerelease: false
+
+      - name: Upload m68k-elf-gcc for mingw32
+        id: upload-release-asset-01
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./mingw32.tgz
+          asset_name: mingw32.tgz
+          asset_content_type: application/zip

@@ -1,0 +1,65 @@
+name: "m68k-elf-gcc builder"
+
+concurrency:
+  group: ${{ github.ref }}-m68k-elf-gcc
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch: # Allows for manual triggering.
+  push: # Trigger when pushed to master.
+    branches:
+      - 'v*'
+
+env:
+  PLATFORMS: linux/amd64
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Install Packages
+        run: |
+          sudo apt install mingw-w64 build-essential
+
+      - name: Building
+        run: |
+          ./build_gcc.sh
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "${{ github.ref_name }}_latest"
+          release_name: "Automated release from ${{ github.ref_name }} branch"
+          draft: true
+          prerelease: false
+
+      - name: Upload m68k-elf-gcc for mingw32
+        id: upload-release-asset-01
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ env.MINGW_FILE }}.tgz
+          asset_name: ${{ env.MINGW_FILE }}.tgz
+          asset_content_type: application/zip
+  
+      - name: Upload m68k-elf-gcc for Ubuntu
+        id: upload-release-asset-02
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ env.UBUNTU_FILE }}.tgz
+          asset_name: ${{ env.UBUNTU_FILE }}.tgz
+          asset_content_type: application/zip
