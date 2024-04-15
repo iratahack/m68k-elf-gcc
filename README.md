@@ -17,3 +17,14 @@ The build scripts in this repository are:
 
 Two github actions are available, one to run each script.
 
+## Using with SGDK
+
+Integration with SGDK is not 100% seamless. Follow the steps below to integrate with SGDK.
+
+* Extract the archive containing the m68k-elf development tools
+* Setup your path to include `SGDK/bin` and `<installdir>/m68k-elf/bin` (extracted from the tool archive)
+* Remove the existing tool binaries from the `SGDK` directory listed below
+```
+bin/ar.exe bin/as.exe bin/cc1.exe bin/cpp.exe bin/gcc.exe bin/gdb.exe bin/ld.exe bin/libgcc_s_dw2-1.dll bin/libgmp-10.dll bin/libiconv-2.dll bin/liblto_plugin-0.dll bin/libmpc-3.dll bin/libmpfr-4.dll bin/lto-wrapper.exe bin/lto1.exe bin/nm.exe bin/objcopy.exe bin/objdump.exe bin/size.exe lib/libgcc.a
+```
+* Set the `PREFIX` environment variable to `m68k-elf-`
