@@ -5,8 +5,6 @@ build_gdb ()
 	mkdir -p "$BUILDDIR/$GDB"
 	cd "$BUILDDIR/$GDB"
 
-	ln -s $SRCDIR/$GCC/mpfr-4.1.0 mpfr
-	ln -s $SRCDIR/$GCC/gmp-6.2.1 gmp
 
 	$SRCDIR/$GDB/configure \
 		--prefix=$PREFIX \
@@ -39,9 +37,6 @@ build_binutils ()
 
 build_gcc ()
 {
-	cd $SRCDIR/$GCC
-	./contrib/download_prerequisites
-
 	mkdir -p "$BUILDDIR/$GCC"
 	cd "$BUILDDIR/$GCC"
 
@@ -131,6 +126,9 @@ if ! [ -d "$SRCDIR/$BINUTILS" ]; then
 fi
 if ! [ -d "$SRCDIR/$GCC" ]; then
 	wget https://ftp.gnu.org/gnu/gcc/${GCC}/${GCC}.tar.gz  -O - | tar -xz
+	cd $SRCDIR/$GCC
+	./contrib/download_prerequisites
+	cd "$SRCDIR"
 fi
 if ! [ -d "$SRCDIR/$NEWLIB" ]; then
 	wget  ftp://sourceware.org/pub/newlib/${NEWLIB}.tar.gz -O - | tar -xz
@@ -138,6 +136,10 @@ fi
 if ! [ -d "$SRCDIR/$GDB" ]; then
 	wget  https://ftp.gnu.org/gnu/gdb/${GDB}.tar.gz -O - | tar -xz
 fi
+
+# Setup links for mpfr and gmp for building gdb
+ln -s $SRCDIR/$GCC/mpfr-4.1.0 $SRCDIR/$GDB/mpfr
+ln -s $SRCDIR/$GCC/gmp-6.2.1 $SRCDIR/$GDB/gmp
 
 BUILD=`$SRCDIR/$BINUTILS/config.guess`
 
@@ -166,6 +168,8 @@ build_gdb
 
 rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
 rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
+
+strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mingw" | xargs -I _ cp _ .
 
 cd "$INSTALLDIR"
 zip -r ${BASEDIR}/$HOST.zip ./$HOST
