@@ -1,5 +1,24 @@
 #!/usr/bin/bash
 
+build_gdb ()
+{
+	mkdir -p "$BUILDDIR/$GDB"
+	cd "$BUILDDIR/$GDB"
+
+	ln -s $SRCDIR/$GCC/mpfr-4.1.0 mpfr
+	ln -s $SRCDIR/$GCC/gmp-6.2.1 gmp
+
+	$SRCDIR/$GDB/configure \
+		--prefix=$PREFIX \
+		--target=$TARGET \
+		--with-cpu=$TARGET_CPU \
+		--host=$HOST \
+		--build=$BUILD
+
+		make -j"$(nproc)"
+		make install-strip
+}
+
 build_binutils ()
 {
 	mkdir -p "$BUILDDIR/$BINUTILS"
@@ -87,6 +106,7 @@ build_newlib ()
 _binu_ver=2.40
 _gcc_ver=13.2.0
 _newlib_ver=4.4.0.20231231
+_gdb_ver=14.2
 
 TARGET=m68k-elf
 TARGET_CPU=m68000
@@ -95,6 +115,7 @@ BASEDIR=$PWD
 BINUTILS=binutils-${_binu_ver}
 GCC=gcc-${_gcc_ver}
 NEWLIB=newlib-${_newlib_ver}
+GDB=gdb-${_gdb_ver}
 
 SRCDIR="$BASEDIR/src"
 BUILDDIR="$BASEDIR/build"
@@ -114,10 +135,13 @@ fi
 if ! [ -d "$SRCDIR/$NEWLIB" ]; then
 	wget  ftp://sourceware.org/pub/newlib/${NEWLIB}.tar.gz -O - | tar -xz
 fi
+if ! [ -d "$SRCDIR/$GDB" ]; then
+	wget  https://ftp.gnu.org/gnu/gdb/${GDB}.tar.gz -O - | tar -xz
+fi
 
 BUILD=`$SRCDIR/$BINUTILS/config.guess`
-which ${TARGET}-gcc
 
+which ${TARGET}-gcc
 if [ $? -ne 0 ]; then
 	echo "Building native cross-compiler to help with build"
 	# Build native compilers to help with the cross compile for mingw32
@@ -126,16 +150,19 @@ if [ $? -ne 0 ]; then
 	export PATH=$PREFIX/bin:$PATH
 	build_binutils
 	build_gcc
+	build_gdb
 fi
 
 # Remove native builds and start the mingw32 cross-compile
 rm -rf "$BUILDDIR/$GCC"
 rm -rf "$BUILDDIR/$BINUTILS"
+rm -rf "$BUILDDIR/$GDB"
 
 HOST=i686-w64-mingw32
 PREFIX="$INSTALLDIR/$HOST/$TARGET"
 build_binutils
 build_gcc
+build_gdb
 
 rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
 rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
