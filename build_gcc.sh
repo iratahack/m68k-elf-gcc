@@ -169,6 +169,9 @@ build_gdb
 rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
 rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
 
+# Setup path to pickup DLL files
+export PATH=/usr/lib/gcc/$HOST/10-win32:$PATH
+cd "$PREFIX/bin"
 strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mingw" | xargs -I _ cp _ .
 
 cd "$INSTALLDIR"
