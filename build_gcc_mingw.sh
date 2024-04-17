@@ -1,5 +1,23 @@
 #!/usr/bin/bash
-set -e
+
+#set -e
+
+build_gdb ()
+{
+	mkdir -p "$BUILDDIR/$GDB"
+	cd "$BUILDDIR/$GDB"
+
+
+	$SRCDIR/$GDB/configure \
+		--prefix=$PREFIX \
+		--target=$TARGET \
+		--with-cpu=$TARGET_CPU \
+		--host=$HOST \
+		--build=$BUILD
+
+		make -j"$(nproc)"
+		make install-strip
+}
 
 build_binutils ()
 {
@@ -20,9 +38,6 @@ build_binutils ()
 
 build_gcc ()
 {
-	cd $SRCDIR/$GCC
-	./contrib/download_prerequisites
-
 	mkdir -p "$BUILDDIR/$GCC"
 	cd "$BUILDDIR/$GCC"
 
@@ -68,6 +83,7 @@ build_gcc ()
 _binu_ver=2.40
 _gcc_ver=13.2.0
 _newlib_ver=4.4.0.20231231
+_gdb_ver=14.2
 
 TARGET=m68k-elf
 TARGET_CPU=m68000
@@ -76,6 +92,7 @@ BASEDIR=$PWD
 BINUTILS=binutils-${_binu_ver}
 GCC=gcc-${_gcc_ver}
 NEWLIB=newlib-${_newlib_ver}
+GDB=gdb-${_gdb_ver}
 
 SRCDIR="$BASEDIR/src"
 BUILDDIR="$BASEDIR/build"
@@ -91,19 +108,35 @@ if ! [ -d "$SRCDIR/$BINUTILS" ]; then
 fi
 if ! [ -d "$SRCDIR/$GCC" ]; then
 	wget --no-check-certificate https://ftp.gnu.org/gnu/gcc/${GCC}/${GCC}.tar.gz  -O - | tar -xz
+	cd $SRCDIR/$GCC
+	./contrib/download_prerequisites
+	cd "$SRCDIR"
+fi
+#if ! [ -d "$SRCDIR/$NEWLIB" ]; then
+#	wget --no-check-certificate ftp://sourceware.org/pub/newlib/${NEWLIB}.tar.gz -O - | tar -xz
+#fi
+if ! [ -d "$SRCDIR/$GDB" ]; then
+	wget --no-check-certificate https://ftp.gnu.org/gnu/gdb/${GDB}.tar.gz -O - | tar -xz
 fi
 
-PREFIX="$INSTALLDIR/$TARGET"
+BUILD=`$SRCDIR/$BINUTILS/config.guess`
+HOST=$BUILD
+
+# Setup links for mpfr and gmp for building gdb
+ln -s $SRCDIR/$GCC/mpfr-4.1.0 $SRCDIR/$GDB/mpfr
+ln -s $SRCDIR/$GCC/gmp-6.2.1 $SRCDIR/$GDB/gmp
+
+PREFIX="$INSTALLDIR/$HOST/$TARGET"
 export PATH=$PREFIX/bin:$PATH
 build_binutils
 build_gcc
+build_gdb
 
 cd "$PREFIX/bin"
-strings * | grep  ".\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "/mingw" | xargs -I _ cp _ .
-strings * | grep  ".\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "/mingw" | xargs -I _ cp _ .
+strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "/mingw" | xargs -I _ cp _ .
 
 rm -rf "$INSTALLDIR/$TARGET/share"
 
 cd "$INSTALLDIR"
-tar cfz ${BASEDIR}/mingw32.tgz ./$TARGET
+zip -r ${BASEDIR}/$HOST.zip ./$HOST
 
