@@ -13,7 +13,8 @@ build_gdb ()
 		--target=$TARGET \
 		--with-cpu=$TARGET_CPU \
 		--host=$HOST \
-		--build=$BUILD
+		--build=$BUILD \
+		--with-static-standard-libraries
 
 		make -j"$(nproc)"
 		make install-strip
