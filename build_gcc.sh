@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-set -e
+#set -e
 
 build_gdb ()
 {
