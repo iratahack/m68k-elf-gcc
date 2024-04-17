@@ -32,7 +32,8 @@ build_binutils ()
 		--host=$HOST \
 		--build=$BUILD \
 		--disable-multilib \
-		--disable-nls
+		--disable-nls \
+		--with-static-standard-libraries
 
 	make -j"$(nproc)"
 	make install-strip
@@ -67,7 +68,8 @@ build_gcc ()
 		--disable-gcov \
 		--without-headers \
 		--without-included-gettext \
-		--disable-testsuite
+		--disable-testsuite \
+		--with-static-standard-libraries
 
 	make -j"$(nproc)" all-gcc
 	make install-strip-gcc
