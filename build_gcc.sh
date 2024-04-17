@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+set -e
+
 build_gdb ()
 {
 	mkdir -p "$BUILDDIR/$GDB"
@@ -122,19 +124,19 @@ mkdir -p "$INSTALLDIR"
 
 cd "$SRCDIR"
 if ! [ -d "$SRCDIR/$BINUTILS" ]; then
-	wget https://ftp.gnu.org/gnu/binutils/${BINUTILS}.tar.gz -O - | tar -xz
+	wget --no-check-certificate https://ftp.gnu.org/gnu/binutils/${BINUTILS}.tar.gz -O - | tar -xz
 fi
 if ! [ -d "$SRCDIR/$GCC" ]; then
-	wget https://ftp.gnu.org/gnu/gcc/${GCC}/${GCC}.tar.gz  -O - | tar -xz
+	wget --no-check-certificate https://ftp.gnu.org/gnu/gcc/${GCC}/${GCC}.tar.gz  -O - | tar -xz
 	cd $SRCDIR/$GCC
 	./contrib/download_prerequisites
 	cd "$SRCDIR"
 fi
 if ! [ -d "$SRCDIR/$NEWLIB" ]; then
-	wget  ftp://sourceware.org/pub/newlib/${NEWLIB}.tar.gz -O - | tar -xz
+	wget --no-check-certificate ftp://sourceware.org/pub/newlib/${NEWLIB}.tar.gz -O - | tar -xz
 fi
 if ! [ -d "$SRCDIR/$GDB" ]; then
-	wget  https://ftp.gnu.org/gnu/gdb/${GDB}.tar.gz -O - | tar -xz
+	wget --no-check-certificate https://ftp.gnu.org/gnu/gdb/${GDB}.tar.gz -O - | tar -xz
 fi
 
 # Setup links for mpfr and gmp for building gdb
@@ -153,6 +155,9 @@ if [ $? -ne 0 ]; then
 	build_binutils
 	build_gcc
 	build_gdb
+	rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
+	cd "$INSTALLDIR"
+	tar cfz ${BASEDIR}/$BUILD.tgz ./$BUILD
 fi
 
 # Remove native builds and start the mingw32 cross-compile
@@ -167,7 +172,6 @@ build_gcc
 build_gdb
 
 rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
-rm -rf "$INSTALLDIR/$BUILD/$TARGET/share"
 
 # Setup path to pickup DLL files
 export PATH=/usr/lib/gcc/$HOST/10-win32:$PATH
@@ -176,7 +180,6 @@ strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mi
 
 cd "$INSTALLDIR"
 zip -r ${BASEDIR}/$HOST.zip ./$HOST
-tar cfz ${BASEDIR}/$BUILD.tgz ./$BUILD
 
 # For github actions
 if [ "$GITHUB_ENV" != "" ]; then
