@@ -8,7 +8,7 @@ build_gdb ()
 	cd "$BUILDDIR/$GDB"
 
 
-	$SRCDIR/$GDB/configure \
+	../../src/$GDB/configure \
 		--prefix=$PREFIX \
 		--target=$TARGET \
 		--with-cpu=$TARGET_CPU \
@@ -135,8 +135,13 @@ build_gdb
 cd "$PREFIX/bin"
 strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "/mingw" | xargs -I _ cp _ .
 
-rm -rf "$INSTALLDIR/$TARGET/share"
+rm -rf "$INSTALLDIR/$HOST/$TARGET/share"
 
 cd "$INSTALLDIR"
 zip -r ${BASEDIR}/$HOST.zip ./$HOST
+
+# For github actions
+if [ "$GITHUB_ENV" != "" ]; then
+	echo "MINGW_FILE=$HOST.zip" >> "$GITHUB_ENV"
+fi
 
