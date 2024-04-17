@@ -20,7 +20,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW32
-          install: gcc mingw-w64-i686-toolchain development make autotools texinfo
+          install: gcc mingw-w64-i686-toolchain development make autotools texinfo zip
 
       - name: Checkout
         uses: actions/checkout@v4
