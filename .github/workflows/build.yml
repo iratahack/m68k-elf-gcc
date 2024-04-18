@@ -1,4 +1,4 @@
-name: "m68k-elf-gcc builder"
+name: "m68k-elf-gcc builder using crosstool-ng"
 
 concurrency:
   group: ${{ github.ref }}-m68k-elf-gcc
@@ -25,11 +25,11 @@ jobs:
 
       - name: Install Packages
         run: |
-          sudo apt install mingw-w64 build-essential
+          sudo apt install mingw-w64 build-essential gcc g++ gperf bison flex texinfo help2man make libncurses5-dev python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 xz-utils unzip patch libstdc++6 rsync git meson ninja-build
 
       - name: Building
         run: |
-          ./build_gcc.sh
+          ./crosstool-build.sh
 
       - name: Create Release
         id: create_release
@@ -49,8 +49,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./${{ env.MINGW_FILE }}.zip
-          asset_name: ${{ env.MINGW_FILE }}.zip
+          asset_path: ./${{ env.MINGW_FILE }}
+          asset_name: ${{ env.MINGW_FILE }}
           asset_content_type: application/zip
   
       - name: Upload m68k-elf-gcc for Ubuntu
@@ -60,6 +60,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing its ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./${{ env.UBUNTU_FILE }}.tgz
-          asset_name: ${{ env.UBUNTU_FILE }}.tgz
+          asset_path: ./${{ env.UBUNTU_FILE }}
+          asset_name: ${{ env.UBUNTU_FILE }}
           asset_content_type: application/zip

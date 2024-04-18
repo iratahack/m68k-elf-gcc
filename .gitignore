@@ -54,3 +54,7 @@ install
 build
 src
 *.tgz
+
+.config
+.config.old
+.vscode
