@@ -25,10 +25,10 @@ tar cvfz $BASEDIR/$TARGET.tgz $TARGET
 
 
 # Setup path to pickup DLL files
-#export PATH=/usr/lib/gcc/$HOST/10-win32:$PATH
-#cd ~/x-tools/HOST-$HOST/$TARGET/bin
-#strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mingw" | xargs -I _ cp _ .
-#strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mingw" | xargs -I _ cp _ .
+export PATH=/usr/lib/gcc/$HOST/10-win32:$PATH
+cd ~/x-tools/HOST-$HOST/$TARGET/bin
+strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mingw" | xargs -I _ cp _ .
+strings * | grep  ".*\\.dll" | sort | uniq | xargs which 2> /dev/null | grep "mingw" | xargs -I _ cp _ .
 
 cd ~/x-tools/HOST-$HOST
 echo "Creating $BASEDIR/$HOST.zip" 
