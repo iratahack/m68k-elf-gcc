@@ -2,9 +2,9 @@
 
 Toolset for the Motorola 68000 for use with [SGDK](https://github.com/Stephane-D/SGDK) and other bare-metal environments. It includes the following components:
 
-* GCC 13.2.0
-* GDB 13.2
-* Newlib 4.3.0.20230120
+* GCC 14.2.0
+* GDB 16.2
+* Newlib 4.5.0.20241231
 
 ## Cloning
 
@@ -20,15 +20,20 @@ The build scripts in this repository are:
   * Builds the toolset natively for Ubuntu 22.04 and Windows (mingw32)
     * Builds are performed using [crosstool-ng](https://github.com/crosstool-ng/crosstool-ng)
 
-## Using with SGDK
+## Using with SGDK (Linux)
 
 Integration with SGDK is not 100% seamless. Follow the steps below to integrate with SGDK.
 
 * Extract the archive containing the m68k-elf development tools
 * Setup your path to include `<installdir>/m68k-elf/bin` (extracted from the tool archive)
-* Remove the existing tool binaries from the `SGDK` directory listed below
-```
-bin/ar.exe bin/as.exe bin/cc1.exe bin/cpp.exe bin/gcc.exe bin/gdb.exe bin/ld.exe bin/libgcc_s_dw2-1.dll bin/libgmp-10.dll bin/libiconv-2.dll bin/liblto_plugin-0.dll bin/libmpc-3.dll bin/libmpfr-4.dll bin/lto-wrapper.exe bin/lto1.exe bin/nm.exe bin/objcopy.exe bin/objdump.exe bin/size.exe lib/libgcc.a
-```
 * Set the `PREFIX` environment variable to `m68k-elf-`
-* Copy [these](https://github.com/iratahack/m68k-elf-gcc/tree/develop/SGDK) files to your `SGDK` directory
+* Build sjasm and bintos
+  * From the checked out repo.
+  ```
+  make -C tools/sjasm/src/
+  cp tools/sjasm/src/sjasm bin/
+  cmake -S tools/bintos/src -B tools/bintos/build
+  cmake --build tools/bintos/build/
+  cp tools/bintos/build/bintos bin/
+  ```
+  
